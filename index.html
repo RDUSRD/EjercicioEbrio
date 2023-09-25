@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tambaleo del Borracho</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        #map {
+            width: 400px;
+            height: 400px;
+            border: 1px solid #fc0000; /* Cambiamos el color del plano */
+            background-color: #f0f0f0; /* Cambiamos el color de fondo del plano */
+            position: relative;
+            margin: 0 auto; 
+        }
+        .borracho {
+            width: 20px;
+            height: 20px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 35%;
+            position: absolute;
+        }
+        .start {
+            width: 10px;
+            height: 10px;
+            background-color: rgb(0, 0, 0);
+            border-radius: 50%;
+            position: absolute;
+            left: 195px;
+            top: 195px;
+        }
+        .resultado {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .historial {
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Tambaleo del Borracho</h2>
+        <p>
+            Presiona el botón para simular una caminata aleatoria y ver la probabilidad acumulada de terminar a 2 cuadras o más de distancia del punto de inicio después de caminar 10 cuadras.
+        </p>
+        <button class="btn btn-primary" onclick="simulacion()">Realizar Recorrido</button>
+        <p class="resultado" id="resultado">Iteraciones: 0</p>
+        <p class="resultado" id="probabilidad">Probabilidad:</p>
+        <div id="map">
+            <div class="start"></div>
+        </div>
+        <div class="historial" id="historial">Historial de Probabilidades:</div>
+    </div>
+
+    <script>
+        let iteraciones = 0;
+        let probabilidad = [];
+        
+        async function simulacion() {
+            iteraciones++;
+
+            let count = 0;
+            const map = document.getElementById('map');
+            
+            const start = document.createElement('div');
+            start.className = 'start';
+            map.appendChild(start);
+
+            document.getElementById('resultado').textContent = `Iteraciones: ${iteraciones}`;
+
+            let x = 0;
+            let y = 0;
+
+            const elementosBorracho = document.querySelectorAll('.borracho');
+            elementosBorracho.forEach(elemento => elemento.remove());
+
+            for (let j = 0; j < 10; j++) {
+                const random = Math.random() * 100; 
+                if (random < 25) {
+                    y++;
+                } else if (random < 50) {
+                    y--;
+                } else if (random < 75) {
+                    x++;
+                } else {
+                    x--;
+                }
+                await sleep(80); 
+                const borracho = document.createElement('div');
+                borracho.className = 'borracho';
+                borracho.style.left = (190 + x * 20) + 'px';
+                borracho.style.top = (190 - y * 20) + 'px';
+                map.appendChild(borracho);
+            }
+
+            if (Math.abs(x) + Math.abs(y) === 2) {
+                count++;
+            }
+
+            probabilidad.push(((count / iteraciones) * 100).toFixed(2));
+            document.getElementById('probabilidad').textContent = `Probabilidad: ${probabilidad[probabilidad.length - 1]}%`;
+
+            const historialElement = document.getElementById('historial');
+            historialElement.innerHTML = 'Historial de Probabilidades:';
+            for (let i = 0; i < probabilidad.length; i++) {
+                historialElement.innerHTML += `<br>Iteración ${i + 1}: ${probabilidad[i]}%`;
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
